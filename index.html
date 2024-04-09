@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shallow Rectangular Foundation Calculator</title>
+  <style>
+    /* Your CSS styles here */
+    /* The provided CSS styles */
+    body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+input[type="number"] {
+  width: calc(100% - 12px);
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#results {
+  margin-top: 20px;
+}
+
+.result-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.result-item h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.result-item p {
+  margin-bottom: 0;
+}
+table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Shallow Rectangular Foundation Calculator</h1>
+    <form id="foundationForm">
+      <label for="concreteGrade">Concrete Grade, M:</label>
+      <input type="number" id="concreteGrade" required><br>
+
+      <label for="steelGrade">Steel Grade, Fe:</label>
+      <input type="number" id="steelGrade" required><br>
+
+      <label for="deadLoad">Dead Load:</label>
+      <input type="number" id="deadLoad" required><br>
+
+      <label for="sbc">Safe Bearing Capacity (SBC):</label>
+      <input type="number" id="sbc" required><br>
+
+      <label for="settlement">Settlement:</label>
+      <input type="number" id="settlement" required><br>
+
+      <label for="columnSizeL">Column Size L:</label>
+      <input type="number" id="columnSizeL" required><br>
+
+      <label for="columnSizeB">Column Size B:</label>
+      <input type="number" id="columnSizeB" required><br>
+
+      <label for="liveLoad">Live Load:</label>
+      <input type="number" id="liveLoad" required><br>
+
+      <label for="designFactor">Design Factor:</label>
+      <input type="number" id="designFactor" required><br>
+
+      <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+   function calculate() {
+  const concreteGrade = parseFloat(document.getElementById('concreteGrade').value);
+  const steelGrade = parseFloat(document.getElementById('steelGrade').value);
+  const deadLoad = parseFloat(document.getElementById('deadLoad').value);
+  const sbc = parseFloat(document.getElementById('sbc').value);
+  const settlement = parseFloat(document.getElementById('settlement').value);
+  const columnSizeL = parseFloat(document.getElementById('columnSizeL').value);
+  const columnSizeB = parseFloat(document.getElementById('columnSizeB').value);
+  const liveLoad = parseFloat(document.getElementById('liveLoad').value);
+  const designFactor = parseFloat(document.getElementById('designFactor').value);
+
+  // Perform calculations here
+  const totalLoads = liveLoad + deadLoad;
+  const weightOfFoundation = 0.1 * totalLoads;
+  const TL = totalLoads + weightOfFoundation;
+  const A = TL / sbc;
+
+  const X = Math.abs((-2 * (columnSizeL + columnSizeB) + Math.sqrt(Math.pow(2 * (columnSizeL + columnSizeB), 2) - 4 * 4 * (columnSizeL * columnSizeB))) / 8);
+  const lengthOfFooting = columnSizeL + 2 * X;
+  const breadthOfFooting = columnSizeB + 2 * X;
+
+  const lengthInput = parseFloat(prompt('Enter length of footing:'));
+  const breadthInput = parseFloat(prompt('Enter breadth of footing:'));
+  const Ao = lengthInput * breadthInput;
+
+  const USP = TL / Ao;
+
+  const Mll = USP * breadthInput * Math.pow((lengthInput - columnSizeL) / 2, 2) * 0.5;
+  const Mllu = 1.5 * Mll;
+
+  const Mbb = USP * lengthInput * Math.pow((breadthInput - columnSizeB) / 2, 2) * 0.5;
+  const Mbbu = 1.5 * Mbb;
+
+  const depth = Math.sqrt((Mbbu * Math.pow(10, 6)) / (0.138 * concreteGrade * 0.001 * lengthInput * 1000));
+
+  const cover = parseFloat(prompt('Enter cover:'));
+  const dia = parseFloat(prompt('Enter diameter of steel bar:'));
+  const depthAvailable = depth - cover - (dia / 2);
+
+  const diaRebar = parseFloat(prompt('Enter diameter of reinforcement:'));
+  const unitArea = (Math.PI * Math.pow(diaRebar, 2)) / 4;
+
+  const spacingOverWidth = (unitArea * breadthInput * Math.pow(10, 3)) / ((0.5 * concreteGrade * depth * breadthInput * Math.pow(10, 3)) * (1 - Math.sqrt(1 - (4.6 * Mllu * Math.pow(10, 6)) / (concreteGrade * breadthInput * Math.pow(depth, 2)))));
+  const Ast = (unitArea / spacingOverWidth) * breadthInput * 1000;
+  const Pt = (Ast * 100) / (breadthInput * depth * 1000);
+
+  const spacingOverLength = (unitArea * lengthInput * Math.pow(10, 3)) / ((0.5 * concreteGrade * depth * lengthInput * Math.pow(10, 3)) * (1 - Math.sqrt(1 - (4.6 * Mllu * Math.pow(10, 6)) / (concreteGrade * lengthInput * Math.pow(depth, 2)))));
+  const Ast2 = (unitArea / spacingOverLength) * lengthInput * 1000;
+  const Pt2 = (Ast2 * 100) / (lengthInput * depth * 1000);
+
+  const LfShear = 1.5 * USP * breadthInput * ((lengthInput - columnSizeL) / 2 - lengthInput * 0.001);
+  const TvLf = LfShear / (breadthInput * depth);
+  const Tc = 0; // Provide Tc value corresponding to the grade of concrete
+
+  const BfShear = 1.5 * USP * lengthInput * ((breadthInput - columnSizeB) / 2 - lengthInput * 0.001);
+  const TvBf = BfShear / (lengthInput * depth);
+
+  const twoWayShear = 1.5 * USP * lengthInput * ((breadthInput - columnSizeB) / 2 - lengthInput * 0.001);
+  const TvTwoWay = twoWayShear / (lengthInput * depth);
+
+  const resultsTable = `
+    <h2>Results</h2>
+    <table border="1">
+      <tr>
+        <th>Calculation</th>
+        <th>Result</th>
+      </tr>
+      <tr><td>Total Loads</td><td>${totalLoads}</td></tr>
+      <tr><td>Weight of Foundation</td><td>${weightOfFoundation}</td></tr>
+      <tr><td>Total Load Transferred to Soil</td><td>${TL}</td></tr>
+      <tr><td>Area of Footing</td><td>${A}</td></tr>
+      <tr><td>Length of Footing</td><td>${lengthOfFooting}</td></tr>
+      <tr><td>Breadth of Footing</td><td>${breadthOfFooting}</td></tr>
+      <tr><td>Actual Area</td><td>${Ao}</td></tr>
+      <tr><td>Upward Soil Pressure</td><td>${USP}</td></tr>
+      <tr><td>Depth of Footing</td><td>${depth}</td></tr>
+      <tr><td>Depth Available</td><td>${depthAvailable}</td></tr>
+      <tr><td>Ast along length</td><td>${Ast}, Percentage of tension reinforcement: ${Pt}</td></tr>
+      <tr><td>Ast along width</td><td>${Ast2}, Percentage of tension reinforcement: ${Pt2}</td></tr>
+      <tr><td>Shear along length (TvLf)</td><td>${TvLf}, Tc value: ${Tc}</td></tr>
+      <tr><td>Shear along width (TvBf)</td><td>${TvBf}, Tc value: ${Tc}</td></tr>
+      <tr><td>Two-way Shear (TvTwoWay)</td><td>${TvTwoWay}, Tc value: ${Tc}</td></tr>
+    </table>
+  `;
+
+  document.getElementById('results').innerHTML = resultsTable;
+}
+
+  </script>
+</body>
+</html>
